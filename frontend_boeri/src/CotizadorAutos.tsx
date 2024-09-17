@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, Select, Input, FormControl, FormLabel , Heading } from "@chakra-ui/react";
+import { Box, Button, Input, FormControl, FormLabel, Heading, Text ,Select} from "@chakra-ui/react";
 import { Form } from 'react-router-dom';
+import { AutoComplete, AutoCompleteInput,
+  AutoCompleteItem, AutoCompleteList,} from '@choc-ui/chakra-autocomplete';
 
 interface Marca {
   id_marca: number;
@@ -41,7 +43,7 @@ export default function CotizadorAutos() {
 
   const fetchMarcas = async () => {
     try {
-      const response = await axios.get('http://localhost:1234/marcas/');
+      const response = await axios.get('http://192.168.0.15:1234/marcas/');
       console.log('Datos de marcas:', response.data); // Verifica la estructura de los datos aquí
       setMarcas(response.data);
     } catch (error) {
@@ -52,8 +54,8 @@ export default function CotizadorAutos() {
   const fetchVersiones = async () => {
     try {
       const url = selectedAnio
-        ? `http://localhost:1234/versiones/${selectedMarca}/${selectedAnio}`
-        : `http://localhost:1234/versiones/${selectedMarca}`;
+        ? `http://192.168.0.15:1234/versiones/${selectedMarca}/${selectedAnio}`
+        : `http://192.168.0.15:1234/versiones/${selectedMarca}`;
       const response = await axios.get(url);
       setVersiones(response.data);
     } catch (error) {
@@ -63,7 +65,7 @@ export default function CotizadorAutos() {
 
   const fetchCodigosPostales = async () => {
     try {
-      const url = `http://localhost:1234/cod_postales/`;
+      const url = `http://192.168.0.15:1234/cod_postales/`;
       const response = await axios.get(url);
       setCodigosPostales(response.data);
     } catch (error) {
@@ -74,7 +76,7 @@ export default function CotizadorAutos() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.get('http://localhost:1234/cotizacion', {
+      const response = await axios.get('http://192.168.0.15:1234/cotizacion', {
         params: {
           marca: selectedMarca,
           anio: selectedAnio,
@@ -94,13 +96,22 @@ export default function CotizadorAutos() {
       <Form method="post" onSubmit={handleSubmit}>
         <FormControl mb="4">
           <FormLabel htmlFor="marca">Marca</FormLabel>
-          <Select id="marca" placeholder="Seleccione una marca" onChange={(e) => setSelectedMarca(e.target.value)}>
-            {marcas.map((marca) => (
-              <option key={marca.id_marca} value={marca.id_marca}>
-                {marca.marca ? marca.marca : 'Nombre no disponible'}
-              </option>
+          <AutoComplete openOnFocus>
+            <AutoCompleteInput variant="filled" />
+            <AutoCompleteList>
+              {marcas.map((marca) => (
+                <AutoCompleteItem
+                  key={marca.id_marca}
+                  value={marca.marca}
+                  textTransform="capitalize"
+                  align="center"
+                  >
+                <Text ml="4">{marca.marca}</Text>
+              </AutoCompleteItem>
+
             ))}
-          </Select>
+          </AutoCompleteList>
+        </AutoComplete>
         </FormControl>
 
         <FormControl mb="4">
