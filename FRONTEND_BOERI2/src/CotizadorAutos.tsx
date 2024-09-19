@@ -6,7 +6,8 @@ import { Form } from 'react-router-dom';
 import { AutoComplete , AutoCompleteInput, AutoCompleteList , AutoCompleteItem} from '@choc-ui/chakra-autocomplete'
 import 'react-autosuggest-z/build/styles.css';
 
-import { decode } from '@msgpack/msgpack'; 
+
+import { fetchMarcas , fetchVersiones , fetchProvincias , fetchCodigosPostales} from './api/cotiszacon.ts';
 
 
 interface Marca {
@@ -44,112 +45,64 @@ export default function CotizadorAutos() {
   const [selectedCP, setSelectedCP] = useState<string>('');
 
   useEffect(() => {
-    fetchMarcas();
-    fetchProvincias();
+    const data_marca = async () => {
+    try {
+    
+        const data1 = await fetchMarcas();
+        setMarcas(data1);
+      }
+    catch (error) {
+      console.error('Network error', error);
+    }};
+    const data_provincia = async () => {
+    try {
+      
+        const data2 = await fetchProvincias();
+        setProvincias(data2);
+      }
+    catch (error) {
+      console.error('Network error', error);
+    }};
+    data_marca();
+    data_provincia();
+                
   }, []);
 
   useEffect(() => {
     if (selectedMarcaID) {
-      fetchVersiones();
-    }
+      const data_version = async () => {
+      try {
+        
+        const data = await fetchVersiones(selectedMarcaID, selectedAnio);
+          setVersiones(data);
+          console.log(data);
+        }
+       catch (error) {
+        console.error('Network error', error);
+      
+          
+    }};
+    data_version()};
   }, [selectedMarcaID, selectedAnio]);
 
-  const fetchProvincias = async () => {
-    try {
-      const response = await fetch('Http://localhost:1234/provincias/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        setProvincias(data);
-      } else {
-        throw new Error('Error en la respuesta del servidor');
-      }
-    } catch (error) {
-      console.error('Error fetching códigos postales:', error);
-    }
-  };
-  
-  const fetchCodigosPostales = async () => {
-    try {
-      const url = selectedProvincia
-        ? `http://localhost:1234/cod_postales/${selectedProvincia}`
-        : 'http://localhost:1234/cod_postales/';
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        setCodigosPostales(data);
-      } else {
-        throw new Error('Error en la respuesta del servidor');
-      }
-    } catch (error) {
-      console.error('Error fetching códigos postales:', error);
-    }
-  };
-  
   useEffect(() => {
-    if (selectedProvincia) {
-      fetchCodigosPostales();
-    }
+    if (selectedProvincia){
+    const data_localidad = async () => {
+    try {
+      
+      const data = await fetchCodigosPostales(selectedMarcaID);
+        setCodigosPostales(data);
+        console.log(data);
+      }
+     catch (error) {
+      console.error('Network error', error);
+         }    };
+    data_localidad();
+
+  }
   }, [selectedProvincia]);
+
   
-
-  const fetchMarcas = async () => {
-    try {
-      const response = await fetch('Http://localhost:1234/marcas/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Datos de marcas:', data); // Verifica la estructura de los datos aquí
-        setMarcas(data);
-      } else {
-        throw new Error('Error en la respuesta del servidor');
-      }
-    } catch (error) {
-      console.error('Error fetching marcas:', error);
-    }
-  };
-
-  const fetchVersiones = async () => {
-    try {
-      const url = selectedAnio
-        ? `Http://localhost:1234/versiones/${selectedMarcaID}/${selectedAnio}`
-        : `Http://localhost:1234/versiones/${selectedMarcaID}`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setVersiones(data);
-      } else {
-        throw new Error('Error en la respuesta del servidor');
-      }
-    } catch (error) {
-      console.error('Error fetching versiones:', error);
-    }
-  };
-
- 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
