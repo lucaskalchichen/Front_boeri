@@ -3,7 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Select, Input, FormControl, FormLabel, Flex } from "@chakra-ui/react";
 import { Form } from 'react-router-dom';
 
+import { AutoComplete, AutoCompleteInput, AutoCompleteList, AutoCompleteItem } from '@choc-ui/chakra-autocomplete';
 import 'react-autosuggest-z/build/styles.css';
+
+
 import Autosuggest from 'react-autosuggest-z';
 
 interface Marca {
